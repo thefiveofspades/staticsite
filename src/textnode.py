@@ -1,7 +1,8 @@
 from enum import Enum
+from htmlnode import LeafNode
 
 class TextType(Enum):
-    NORMAL = 'normal'
+    TEXT = 'text'
     BOLD = 'bold'
     ITALIC = 'italic'
     CODE = 'code'
@@ -12,30 +13,32 @@ class TextNode:
     def __init__(self, text, text_type, url=None):
         self.text = text
         self.url = url
-        match (text_type):
-            case (TextType.BOLD.value):
-                self.text_type = TextType.BOLD
-            case (TextType.ITALIC.value):
-                self.text_type = TextType.ITALIC
-            case (TextType.CODE.value):
-                self.text_type = TextType.CODE
-            case (TextType.LINK.value):
-                self.text_type = TextType.LINK
-            case (TextType.IMAGE.value):
-                self.text_type = TextType.IMAGE
-            case (TextType.NORMAL.value):
-                self.text_type = TextType.NORMAL
-            case _:
-                self.text_type = text_type
+        self.text_type = text_type
             
 
     def __eq__(self, comp):
-        if (
+        return (
             self.text == comp.text
             and self.text_type == comp.text_type
             and self.url == comp.url
-        ):
-            return True
+        )
 
     def __repr__(self):
         return f"TextNode({self.text}, {self.text_type.value}, {self.url})"
+    
+def text_node_to_html_node(text_node):
+    match (text_node.text_type):
+        case (TextType.TEXT):
+            return LeafNode(None, text_node.text)
+        case (TextType.BOLD):
+            return LeafNode('b', text_node.text)
+        case (TextType.ITALIC):
+            return LeafNode('i', text_node.text)
+        case (TextType.CODE):
+            return LeafNode('code', text_node.text)
+        case (TextType.LINK):
+            return LeafNode('a', text_node.text, {"href": text_node.url})
+        case (TextType.IMAGE):
+            return LeafNode("img", "", {"src": text_node.url, "alt": text_node.text})
+        case _:
+            raise ValueError(f"invalid text type: {text_node.text_type}")
