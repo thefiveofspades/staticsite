@@ -1,8 +1,30 @@
-from textnode import TextNode, TextType
+import os
+import shutil
+import sys
+
+from copy_static import copy_static_files
+from generate_page import generate_page, generate_files_recusive
+
+
+dir_path_static = os.path.abspath("./static")
+dir_path_public = os.path.abspath("./public")
+index_path = os.path.abspath("./content")
+template_path = os.path.abspath("./template.html")
+dst_index_file = "index.html"
+dst_index_path = os.path.join(dir_path_public,dst_index_file)
+
 
 def main():
-    textnode = TextNode("This is a text node", TextType.BOLD, "https://www.boot.dev")
-    print(textnode)
+    print("Deleting public directory...")
+    if os.path.exists(dir_path_public):
+        shutil.rmtree(dir_path_public)
 
-if __name__ == "__main__":
-    main()
+    print("Copying static files to public directory...")
+    copy_static_files(dir_path_static, dir_path_public)
+
+    print("Generating files to public directory...")
+    generate_files_recusive(index_path, template_path, dir_path_public)
+
+
+
+main()
