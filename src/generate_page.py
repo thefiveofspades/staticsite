@@ -1,5 +1,4 @@
 ﻿import os
-
 from extract_title import extract_title
 from markdown_blocks import markdown_to_html_node
 
@@ -13,8 +12,8 @@ def write_file(file, content):
     with open(os.path.abspath(file), "w") as f:
         f.write(content)
 
-def generate_page(from_path, template_path, dest_path):
-    print(f"Generating page from {from_path} to {dest_path} using template {template_path}")
+def generate_page(from_path, template_path, dest_path, basepath):
+    print(f"Generating page from {from_path} to {dest_path} using template {template_path} using basepath {basepath}")
     markdown = read_file(from_path)
     title = extract_title(markdown)
     html = (markdown_to_html_node(markdown)).to_html()
@@ -22,6 +21,8 @@ def generate_page(from_path, template_path, dest_path):
     template = read_file(template_path)
     render = template.replace("{{ Title }}", title)
     render = render.replace("{{ Content }}", html)
+    render = render.replace('href="/', f'href="{basepath}')
+    render = render.replace('src="/', f'src="{basepath}')
 
     if not os.path.exists(os.path.dirname(dest_path)):
         os.mkdir(os.path.dirname(dest_path))
@@ -33,7 +34,7 @@ def generate_page(from_path, template_path, dest_path):
     print(render)
 
 
-def generate_files_recusive(source_dir_path, template_path, dest_dir_path):
+def generate_files_recusive(source_dir_path, template_path, dest_dir_path, basepath):
     if not os.path.exists(dest_dir_path):
         os.mkdir(dest_dir_path)
 
@@ -44,6 +45,6 @@ def generate_files_recusive(source_dir_path, template_path, dest_dir_path):
 
         if os.path.isfile(from_path):
             print(f" * {from_path} -> {dest_path}")
-            generate_page(from_path, template_path, dest_path)
+            generate_page(from_path, template_path, dest_path, basepath)
         else:
-            generate_files_recusive(from_path, template_path, dest_path)
+            generate_files_recusive(from_path, template_path, dest_path, basepath)
